@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>sap_custom_adapter</groupId>
+  <artifactId>SAP_Custom_Adapter_JDBC</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>bundle</packaging>
+  <name>${project.groupId}.${project.artifactId}</name>
+
+  <properties>
+    <camel.version>3.14.7</camel.version>
+  	<!-- Check for the latest version of this artifact in central maven repository -->
+    <adk.version>2.2.0</adk.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.sap.cloud.adk</groupId>
+      <artifactId>com.sap.cloud.adk.build.archive</artifactId>  
+      <version>${adk.version}</version>    
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+      <version>${camel.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient-osgi -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient-osgi</artifactId>
+      <version>4.5.14</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.nimbusds</groupId>
+      <artifactId>oauth2-oidc-sdk</artifactId>
+      <version>9.15</version>
+    </dependency>
+    <dependency>
+      <groupId>com.nimbusds</groupId>
+      <artifactId>nimbus-jose-jwt</artifactId>
+      <version>9.15</version>
+    </dependency>
+    <dependency>
+      <groupId>net.minidev</groupId>
+      <artifactId>json-smart</artifactId>
+      <version>2.4.7</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.microsoft.sqlserver</groupId>
+      <artifactId>mssql-jdbc</artifactId>
+      <version>12.4.0.jre8</version>
+    </dependency>
+
+    <!-- MSAL4J for AAD auth -->
+    <dependency>
+      <groupId>com.microsoft.azure</groupId>
+      <artifactId>msal4j</artifactId>
+      <version>1.13.8</version>
+    </dependency>
+
+    <!-- testing -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test</artifactId>
+      <version>${camel.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.6.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.16</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.4.0</version>
+        <extensions>true</extensions>
+
+        <configuration>
+          <excludeDependencies>true</excludeDependencies>
+          <instructions>
+            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Bundle-Version>${project.version}</Bundle-Version>
+            <Export-Package>sap_custom_adapter</Export-Package>
+            <Bundle-ClassPath>
+              .,libs/mssql-jdbc-12.4.0.jre8.jar,libs/msal4j-1.13.8.jar,libs/json-smart-2.4.7.jar,libs/nimbus-jose-jwt-9.15.jar,libs/oauth2-oidc-sdk-9.15.jar
+            </Bundle-ClassPath>
+            <Include-Resource>
+              libs/mssql-jdbc-12.4.0.jre8.jar,
+              libs/msal4j-1.13.8.jar,
+              libs/json-smart-2.4.7.jar,
+              libs/nimbus-jose-jwt-9.15.jar,
+              libs/oauth2-oidc-sdk-9.15.jar
+            </Include-Resource>
+            <Import-Package>
+              org.apache.camel,
+              org.apache.camel.impl,
+              org.apache.camel.spi,
+              org.slf4j
+            </Import-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.10</version>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/libs</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>false</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <excludeTransitive>true</excludeTransitive>
+
+              
+              <!-- Specify the artifacts to be excluded in the dependencies -->
+              <excludeArtifactIds>oauth2-oidc-sdk,msal4j,json-smart,nimbus-jose-jwt,mssql-jdbc</excludeArtifactIds>
+              
+              <!-- Specify the group ids to be excluded in the dependencies -->
+              <excludeGroupIds>com.sap.cloud.adk,org.apache.camel,org.slf4j,log4j,com.microsoft.azure,com.microsoft.sqlserver,com.nimbusds,net.minidev</excludeGroupIds>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.sap.cloud.adk</groupId>
+        <artifactId>com.sap.cloud.adk.build.archive</artifactId>
+        <version>${adk.version}</version>    
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.sap.cloud.adk</groupId>
+          <artifactId>com.sap.cloud.adk.build.archive</artifactId> 
+          <executions>
+            <execution>
+              <id>execute-checks</id>
+              <phase>package</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <configuration>
+                <adapterProjectDirectory>${project.basedir}</adapterProjectDirectory>
+              </configuration>
+            </execution>
+            <execution>
+              <id>build-adapter</id>
+              <phase>install</phase>
+              <goals>
+                <goal>build</goal>
+              </goals>
+              <configuration>
+                <adapterProjectDirectory>${project.basedir}</adapterProjectDirectory>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>javadoc-jar</id>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>aggregate-jar</id>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>aggregate-jar</goal>
+              </goals>
+              <inherited>false</inherited>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
