@@ -34,7 +34,7 @@
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient-osgi</artifactId>
       <version>4.5.14</version>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -126,6 +126,7 @@
             <Import-Package>
               org.apache.camel.*,
               org.slf4j,
+              org.apache.httpcomponents
               *
             </Import-Package>
           </instructions>
