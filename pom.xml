@@ -58,10 +58,18 @@
       <scope>runtime</scope>
     </dependency>
 
+    <!-- OSGi-enabled JCIP Annotations -->
+    <dependency>
+      <groupId>com.github.stephenc.jcip</groupId>
+      <artifactId>jcip-annotations</artifactId>
+      <version>1.0-1</version>
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>com.nimbusds</groupId>
       <artifactId>nimbus-jose-jwt</artifactId>
-      <version>9.15</version>
+      <version>9.15.1</version>
       <scope>runtime</scope>
     </dependency>
 
@@ -108,21 +116,18 @@
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Bundle-Version>${project.version}</Bundle-Version>
             <Export-Package>sap_custom_adapter</Export-Package>
-            <Bundle-ClassPath>
-              .,libs/mssql-jdbc-12.4.0.jre8.jar,
-              libs/msal4j-1.13.8.jar,
-              libs/json-smart-2.4.7.jar,
-              libs/nimbus-jose-jwt-9.15.jar,
-              libs/oauth2-oidc-sdk-9.15.jar
-            </Bundle-ClassPath>
             <Include-Resource>
-              libs/mssql-jdbc-12.4.0.jre8.jar=@${project.build.directory}/libs/mssql-jdbc-12.4.0.jre8.jar,
-              libs/msal4j-1.13.8.jar=@${project.build.directory}/libs/msal4j-1.13.8.jar,
-              libs/json-smart-2.4.7.jar=@${project.build.directory}/libs/json-smart-2.4.7.jar,
-              libs/nimbus-jose-jwt-9.15.jar=@${project.build.directory}/libs/nimbus-jose-jwt-9.15.jar,
-              libs/oauth2-oidc-sdk-9.15.jar=@${project.build.directory}/libs/oauth2-oidc-sdk-9.15.jar,
-              metadata/metadata.xml=src/main/resources/metadata/metadata.xml
+              libs/,
+              src/main/resources/
             </Include-Resource>
+            <Bundle-ClassPath>
+              .,mssql-jdbc-12.4.0.jre8.jar,
+              msal4j-1.13.8.jar,
+              json-smart-2.4.7.jar,
+              nimbus-jose-jwt-9.15.jar,
+              oauth2-oidc-sdk-9.15.jar,
+              jcip-annotations-1.0.jar
+            </Bundle-ClassPath>
             <Import-Package>
               org.apache.camel.*,
               org.slf4j,
@@ -136,7 +141,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>2.3.2</version>
         <configuration>
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
@@ -146,47 +151,26 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.2</version>
+        <version>2.10</version>
         <executions>
           <execution>
-            <id>copy-non-osgi-deps</id>
-            <phase>prepare-package</phase>
+            <id>copy-dependencies</id>
+            <phase>package</phase>
             <goals>
-              <goal>copy</goal>
+              <goal>copy-dependencies</goal>
             </goals>
             <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.microsoft.sqlserver</groupId>
-                  <artifactId>mssql-jdbc</artifactId>
-                  <version>12.4.0.jre8</version>
-                  <outputDirectory>${project.build.directory}/libs</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>com.microsoft.azure</groupId>
-                  <artifactId>msal4j</artifactId>
-                  <version>1.13.8</version>
-                  <outputDirectory>${project.build.directory}/libs</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>net.minidev</groupId>
-                  <artifactId>json-smart</artifactId>
-                  <version>2.4.7</version>
-                  <outputDirectory>${project.build.directory}/libs</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>com.nimbusds</groupId>
-                  <artifactId>nimbus-jose-jwt</artifactId>
-                  <version>9.15</version>
-                  <outputDirectory>${project.build.directory}/libs</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>com.nimbusds</groupId>
-                  <artifactId>oauth2-oidc-sdk</artifactId>
-                  <version>9.15</version>
-                  <outputDirectory>${project.build.directory}/libs</outputDirectory>
-                </artifactItem>
-              </artifactItems>
+              <outputDirectory>${project.build.directory}/libs</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>false</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <excludeTransitive>true</excludeTransitive>
+
+              <!-- Specify the artifacts to be excluded in the dependencies -->
+              <excludeArtifactIds></excludeArtifactIds>
+
+              <!-- Specify the group ids to be excluded in the dependencies -->
+              <excludeGroupIds>com.sap.cloud.adk,org.apache.camel,org.slf4j,log4j,org.apache.httpcomponents,net.jcip</excludeGroupIds>
             </configuration>
           </execution>
         </executions>
