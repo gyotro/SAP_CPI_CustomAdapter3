@@ -58,13 +58,6 @@
       <scope>runtime</scope>
     </dependency>
 
-    <!-- OSGi-enabled JCIP Annotations -->
-    <dependency>
-      <groupId>com.github.stephenc.jcip</groupId>
-      <artifactId>jcip-annotations</artifactId>
-      <version>1.0-1</version>
-      <scope>provided</scope>
-    </dependency>
 
     <dependency>
       <groupId>com.nimbusds</groupId>
@@ -126,7 +119,7 @@
               json-smart-2.4.7.jar,
               nimbus-jose-jwt-9.15.jar,
               oauth2-oidc-sdk-9.15.jar,
-              jcip-annotations-1.0.jar
+              jcip-annotations-osgi-1.0.1.jar
             </Bundle-ClassPath>
             <Import-Package>
               org.apache.camel.*,
@@ -170,7 +163,7 @@
               <excludeArtifactIds></excludeArtifactIds>
 
               <!-- Specify the group ids to be excluded in the dependencies -->
-              <excludeGroupIds>com.sap.cloud.adk,org.apache.camel,org.slf4j,log4j,org.apache.httpcomponents,net.jcip</excludeGroupIds>
+              <excludeGroupIds>com.sap.cloud.adk,org.apache.camel,org.slf4j,log4j,org.apache.httpcomponents</excludeGroupIds>
             </configuration>
           </execution>
         </executions>
